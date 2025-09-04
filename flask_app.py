@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 from flask_bootstrap import Bootstrap
 from flask_moment import Moment
 from datetime import datetime
@@ -14,6 +14,10 @@ def home():
 @app.route("/user")
 def user():
     return render_template("user.html")
+
+@app.route("/contexto")
+def user():
+    return render_template('contexto.html', request=request)
 
 @app.errorhandler(404)
 def notfound(e):
