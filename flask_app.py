@@ -16,8 +16,8 @@ def user():
     return render_template("user.html")
 
 @app.route("/contexto")
-def user():
-    return render_template('contexto.html', request=request)
+def contexto():
+    return render_template('contexto.html')
 
 @app.errorhandler(404)
 def notfound(e):

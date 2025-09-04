@@ -3,11 +3,11 @@
 {% block title %}User{% endblock %}
 
 {% block content %}
-<div clas="page-header">
+<div class="page-header">
 
 <h1>Hello, Ana Flávia de Brito Fernandes!</h1>
 <p>Seu navegador é:  {{request.headers.get('User-Agent')}}</p>
-<p>>O IP do cumputador remoto é: {{request.format(request.remote_addr)}}</p>
-<p>O host da aplicação é: {{request.format(request.host)}}</p>
+<p>O IP do computador remoto é: {{ request.remote_addr }}</p>
+<p>O host da aplicação é: {{ request.host }}</p>
 </div>
 {% endblock %}
