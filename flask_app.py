@@ -4,6 +4,7 @@ from flask_moment import Moment
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, SelectField
 from wtforms.validators import DataRequired
+from wtforms import PasswordField  # importar tambéms
 from datetime import datetime
 
 app = Flask(__name__)
