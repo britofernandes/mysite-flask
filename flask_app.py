@@ -26,6 +26,21 @@ class NameForm(FlaskForm):
     )
     submit = SubmitField('Enviar')
 
+class LoginForm(FlaskForm):
+    username = StringField('Usuário ou e-mail', validators=[DataRequired()])
+    password = PasswordField('Informe a sua senha', validators=[DataRequired()])
+    submit = SubmitField('Enviar')
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    form = LoginForm()
+    if form.validate_on_submit():
+        # Aqui poderia validar no banco, mas por enquanto só guarda na sessão
+        session['username'] = form.username.data
+        session['logged_in'] = True
+        flash('Login realizado com sucesso!')
+        return redirect(url_for('user'))
+    return render_template('login.html', form=form)    
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
