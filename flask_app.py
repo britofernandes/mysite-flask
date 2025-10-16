@@ -4,35 +4,35 @@ from flask import Flask, render_template, session, redirect, url_for, request
 from flask_bootstrap import Bootstrap
 from flask_moment import Moment
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, BooleanField, SelectField, PasswordField
+from wtforms import StringField, SubmitField, BooleanField, SelectField, PasswordField, SubmitField, EmailField
 from wtforms.validators import DataRequired
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 import requests
 from datetime import datetime
 
-# --- Configuração básica ---
+
 basedir = os.path.abspath(os.path.dirname(__file__))
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'hard to guess string'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'data.sqlite')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# --- Variáveis de ambiente (Mailgun ou SendGrid) ---
+
 app.config['API_KEY'] = os.environ.get('API_KEY')
 app.config['API_URL'] = os.environ.get('API_URL')
 app.config['API_FROM'] = os.environ.get('API_FROM')
 app.config['FLASKY_ADMIN'] = os.environ.get('FLASKY_ADMIN')
 app.config['FLASKY_MAIL_SUBJECT_PREFIX'] = '[Flasky]'
 
-# --- Extensões Flask ---
+
 bootstrap = Bootstrap(app)
 moment = Moment(app)
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
 
-# --- Modelos do banco ---
+
 class Role(db.Model):
     __tablename__ = 'roles'
     id = db.Column(db.Integer, primary_key=True)
@@ -48,7 +48,7 @@ class User(db.Model):
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
 
 
-# --- Função de envio de e-mail ---
+
 def send_email(to, subject, text):
     """
     Envia e-mail via Mailgun ou SendGrid usando requests.
@@ -76,7 +76,7 @@ def send_email(to, subject, text):
         return None
 
 
-# --- Formulário principal ---
+
 class NameForm(FlaskForm):
     name = StringField('Qual é o seu nome?', validators=[DataRequired()])
     prontuario = StringField('Qual é o seu prontuário?', validators=[DataRequired()])
@@ -84,7 +84,7 @@ class NameForm(FlaskForm):
     submit = SubmitField('Submit')
 
 
-# --- Rotas e Views ---
+
 @app.route('/', methods=['GET', 'POST'])
 def index():
     form = NameForm()
@@ -96,7 +96,6 @@ def index():
             db.session.commit()
             session['known'] = False
 
-            # --- Monta corpo do e-mail ---
             corpo_email = (
                 f"Novo usuário cadastrado:\n"
                 f"Nome: {form.name.data}\n"
@@ -108,7 +107,6 @@ def index():
             if form.enviar_zoho.data:
                 destinatarios.append("flaskaulasweb@zohomail.com")
 
-            # --- Envia o e-mail ---
             send_email(destinatarios, "Novo usuário cadastrado", corpo_email)
         else:
             session['known'] = True
