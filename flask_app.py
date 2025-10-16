@@ -4,7 +4,7 @@ from flask import Flask, render_template, session, redirect, url_for, request
 from flask_bootstrap import Bootstrap
 from flask_moment import Moment
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, BooleanField
+from wtforms import StringField, SubmitField, BooleanField, SelectField, PasswordField
 from wtforms.validators import DataRequired
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
@@ -118,7 +118,7 @@ def index():
 
     users = User.query.all()
     return render_template('index.html', form=form, name=session.get('name'),
-                           known=session.get('known', False), users=users)
+                           known=session.get('known', False), users=users, current_time=datetime.utcnow())
 
 
 @app.shell_context_processor
