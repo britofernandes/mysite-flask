@@ -1,4 +1,5 @@
 import os
+import requests
 from threading import Thread
 from flask import Flask, render_template, session, redirect, url_for, request
 from flask_bootstrap import Bootstrap
@@ -8,7 +9,6 @@ from wtforms import StringField, SubmitField, BooleanField, SelectField, Passwor
 from wtforms.validators import DataRequired
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-import requests
 from datetime import datetime
 
 
