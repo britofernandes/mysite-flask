@@ -50,40 +50,30 @@ class User(db.Model):
 
 
 def send_email(to, subject, text):
-    """
-    Envia e-mail via Mailgun ou SendGrid usando requests.
-    """
-    print("Enviando e-mail...")
-    print(f"To: {to}")
-    print(f"Subject: {subject}")
-    print(f"Text: {text}")
-
     try:
-        resposta = requests.post(
-            app.config['API_URL'],
-            auth=("api", app.config['API_KEY']),
+        response = requests.post(
+            current_app.config['API_URL'],
+            auth=("api", current_app.config['API_KEY']),
             data={
-                "from": app.config['API_FROM'],
+                "from": current_app.config['API_FROM'],
                 "to": to,
-                "subject": f"{app.config['FLASKY_MAIL_SUBJECT_PREFIX']} {subject}",
+                "subject": f"{current_app.config['FLASKY_MAIL_SUBJECT_PREFIX']} {subject}",
                 "text": text
             }
         )
-        print("Resposta:", resposta.status_code, resposta.text)
-        return resposta
+        print("Email enviado:", response.status_code)
+        return response
     except Exception as e:
-        print("Erro no envio:", e)
+        print("Erro ao enviar e-mail:", e)
         return None
-
 
 
 class NameForm(FlaskForm):
     name = StringField('Qual é o seu nome?', validators=[DataRequired()])
     prontuario = StringField('Qual é o seu prontuário?', validators=[DataRequired()])
-    enviar_zoho = BooleanField('Deseja enviar e-mail para flaskaulasweb@zohomail.com?')
+    email = EmailField('Qual é o seu e-mail (para notificação)?', validators=[DataRequired()])
+    enviar_zoho = BooleanField('Enviar também para flaskaulasweb@zohomail.com?')
     submit = SubmitField('Submit')
-
-
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -94,7 +84,6 @@ def index():
             user = User(username=form.name.data, prontuario=form.prontuario.data)
             db.session.add(user)
             db.session.commit()
-            session['known'] = False
 
             corpo_email = (
                 f"Novo usuário cadastrado:\n"
@@ -103,11 +92,16 @@ def index():
                 f"Usuário: {form.name.data}"
             )
 
-            destinatarios = [app.config['FLASKY_ADMIN']]
+            # Lista de destinatários
+            destinatarios = [form.email.data]  # e-mail do usuário institucional
             if form.enviar_zoho.data:
                 destinatarios.append("flaskaulasweb@zohomail.com")
 
+            # e-mail do administrador
+            destinatarios.append(app.config['FLASKY_ADMIN'])
+
             send_email(destinatarios, "Novo usuário cadastrado", corpo_email)
+            session['known'] = False
         else:
             session['known'] = True
 
