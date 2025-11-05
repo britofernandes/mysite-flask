@@ -75,45 +75,44 @@ def send_email(to, subject, text):
         print("Erro no envio:", e)
         return None
 
+
+
 class NameForm(FlaskForm):
     name = StringField('Qual é o seu nome?', validators=[DataRequired()])
     prontuario = StringField('Qual é o seu prontuário?', validators=[DataRequired()])
-    email = EmailField('Qual é o seu email (Envio de notificação do novo usuário)?', validators=[DataRequired(), Email()])
     enviar_zoho = BooleanField('Deseja enviar e-mail para flaskaulasweb@zohomail.com?')
     submit = SubmitField('Submit')
+
 
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
     form = NameForm()
     if form.validate_on_submit():
-    user = User.query.filter_by(username=form.name.data).first()
-    if user is None:
-        user = User(username=form.name.data,
-                    prontuario=form.prontuario.data,
-                    email=form.email.data)
-        db.session.add(user)
-        db.session.commit()
-        session['known'] = False
+        user = User.query.filter_by(username=form.name.data).first()
+        if user is None:
+            user = User(username=form.name.data, prontuario=form.prontuario.data)
+            db.session.add(user)
+            db.session.commit()
+            session['known'] = False
 
-        corpo_email = (
-            f"Novo usuário cadastrado no sistema Flasky!\n\n"
-            f"Nome: {form.name.data}\n"
-            f"Prontuário: {form.prontuario.data}\n"
-            f"Usuário: {form.name.data}\n"
-            f"E-mail: {form.email.data}"
-        )
+            corpo_email = (
+                f"Novo usuário cadastrado:\n"
+                f"Nome: {form.name.data}\n"
+                f"Prontuário: {form.prontuario.data}\n"
+                f"Usuário: {form.name.data}"
+            )
 
-        destinatarios = [app.config['FLASKY_ADMIN'], form.email.data]
-        if form.enviar_zoho.data:
-            destinatarios.append("flaskaulasweb@zohomail.com")
+            destinatarios = [app.config['FLASKY_ADMIN']]
+            if form.enviar_zoho.data:
+                destinatarios.append("flaskaulasweb@zohomail.com")
 
-        send_email(destinatarios, "Novo usuário cadastrado", corpo_email)
-    else:
-        session['known'] = True
+            send_email(destinatarios, "Novo usuário cadastrado", corpo_email)
+        else:
+            session['known'] = True
 
-    session['name'] = form.name.data
-    return redirect(url_for('index'))
+        session['name'] = form.name.data
+        return redirect(url_for('index'))
 
     users = User.query.all()
     return render_template('index.html', form=form, name=session.get('name'),
